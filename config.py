@@ -13,10 +13,13 @@ class Settings:
     DB_NAME: str = os.getenv("DB_NAME", "investigacion")
     DB_SCHEMA: str = os.getenv("DB_SCHEMA", "investigacion")
     
-    # Conexión por defecto
+    # Conexión CON SSL (requerido por Neon)
     @property
     def DATABASE_URL(self) -> str:
-        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return (
+            f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?sslmode=require"
+        )
 
 # Instancia global
 settings = Settings()
