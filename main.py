@@ -29,6 +29,28 @@ async def ping():
     return {"status": "ok", "message": "API funcionando correctamente"}
 
 # ------------------------------------------------------------
+# ENDPOINT DE DIAGNÓSTICO DE URL DE CONEXIÓN (verificar SSL y credenciales)
+# ------------------------------------------------------------
+@app.get("/debug-db-url")
+async def debug_db_url():
+    from servicios.conexion.proveedor_conexion import ProveedorConexion
+    proveedor = ProveedorConexion()
+    url = proveedor.obtener_cadena_conexion()
+    # Ofuscar contraseña por seguridad
+    parts = url.split("://")[1].split("@")
+    user_pass = parts[0].split(":")
+    password = user_pass[1] if len(user_pass) > 1 else ""
+    masked_password = password[:4] + "****" + password[-4:] if len(password) > 8 else "****"
+    url_masked = url.replace(password, masked_password) if password else url
+    return {
+        "url_used_masked": url_masked,
+        "db_user": proveedor._settings.DB_USER,
+        "db_host": proveedor._settings.DB_HOST,
+        "db_name": proveedor._settings.DB_NAME,
+        "ssl_param": "ssl=require" in url
+    }
+
+# ------------------------------------------------------------
 # ENDPOINT DE VERIFICACIÓN DE CONTRASEÑA (directo en main)
 # ------------------------------------------------------------
 @app.post("/api/usuario/verificar-contrasena")
@@ -79,7 +101,7 @@ app.include_router(investigacion_controller)      # /api/investigacion/{tabla}
 @app.get("/", tags=["Diagnóstico"])
 async def root():
     return {
-        "mensaje": "API Investigación funcionando - v2 (con ping)",  # <-- CAMBIADO AQUÍ
+        "mensaje": "API Investigación funcionando - v2 (con ping)",
         "version": "1.0.0",
         "base_datos": settings.DB_NAME,
         "esquema": settings.DB_SCHEMA,

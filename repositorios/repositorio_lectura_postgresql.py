@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 from servicios.abstracciones.i_proveedor_conexion import IProveedorConexion
 from servicios.utilidades.encriptacion_bcrypt import encriptar
+from config import settings   # <-- IMPORTAR SETTINGS PARA LA URL FORZADA
 
 
 class RepositorioLecturaPostgreSQL:
@@ -27,12 +28,17 @@ class RepositorioLecturaPostgreSQL:
             raise ValueError("proveedor_conexion no puede ser None")
         self._proveedor_conexion = proveedor_conexion
         self._engine: AsyncEngine | None = None
+        # 🔥 URL FORZADA con SSL y credenciales correctas
+        self._forced_url = (
+            f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}"
+            f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}?ssl=require"
+        )
 
     async def _obtener_engine(self) -> AsyncEngine:
-        """Crea el engine de conexión la primera vez, luego lo reutiliza."""
+        """Crea el engine de conexión usando la URL forzada (con SSL)."""
         if self._engine is None:
-            cadena = self._proveedor_conexion.obtener_cadena_conexion()
-            self._engine = create_async_engine(cadena, echo=False)
+            # Usar la URL forzada en lugar de la del proveedor
+            self._engine = create_async_engine(self._forced_url, echo=False)
         return self._engine
 
     # --- Métodos auxiliares para detectar y convertir tipos ---
