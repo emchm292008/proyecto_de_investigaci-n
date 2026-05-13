@@ -22,6 +22,13 @@ app.add_middleware(
 )
 
 # ------------------------------------------------------------
+# ENDPOINT DE DIAGNÓSTICO (prueba de vida)
+# ------------------------------------------------------------
+@app.get("/ping")
+async def ping():
+    return {"status": "ok", "message": "API funcionando correctamente"}
+
+# ------------------------------------------------------------
 # ENDPOINT DE VERIFICACIÓN DE CONTRASEÑA (directo en main)
 # ------------------------------------------------------------
 @app.post("/api/usuario/verificar-contrasena")
@@ -57,12 +64,17 @@ async def verificar_contrasena(
         raise HTTPException(status_code=500, detail=str(e))
 
 # ------------------------------------------------------------
+# ENDPOINT DE PRUEBA POST (para descartar problemas con imports)
+# ------------------------------------------------------------
+@app.post("/api/test-login")
+async def test_login():
+    return {"estado": 200, "mensaje": "Endpoint POST de prueba funcionando"}
+
+# ------------------------------------------------------------
 # REGISTRO DE CONTROLADORES (Routers)
 # ------------------------------------------------------------
 app.include_router(entidades_controller)          # /api/{tabla}
 app.include_router(investigacion_controller)      # /api/investigacion/{tabla}
-
-# Nota: Ya NO necesitamos auth_controller, el endpoint quedó definido arriba
 
 @app.get("/", tags=["Diagnóstico"])
 async def root():
