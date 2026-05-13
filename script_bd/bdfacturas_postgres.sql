@@ -7,205 +7,895 @@
 -- =============================================================================
 
 
--- =============================================
--- TABLAS DEL MÓDULO: INVESTIGACIÓN
--- =============================================
+--
+-- PostgreSQL database dump
+--
 
--- Tabla: area_conocimiento
-CREATE TABLE IF NOT EXISTS area_conocimiento (
-    id INT NOT NULL,
-    gran_area VARCHAR(60) NOT NULL,
-    area VARCHAR(60) NOT NULL,
-    disciplina VARCHAR(60) NOT NULL,
-    PRIMARY KEY (id)
-);
+-- Dumped from database version 17.4
+-- Dumped by pg_dump version 17.4
 
--- Tabla: objetivo_desarrollo_sostenible
-CREATE TABLE IF NOT EXISTS objetivo_desarrollo_sostenible (
-    id INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    categoria VARCHAR(45) NOT NULL,
-    PRIMARY KEY (id)
-);
+-- Started on 2026-05-13 14:30:25
 
--- Tabla: area_aplicacion
-CREATE TABLE IF NOT EXISTS area_aplicacion (
-    id INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    PRIMARY KEY (id)
-);
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
--- Tabla: termino_clave
-CREATE TABLE IF NOT EXISTS termino_clave (
-    termino VARCHAR(30) NOT NULL,
-    termino_ingles VARCHAR(30),
-    PRIMARY KEY (termino)
-);
+--
+-- TOC entry 6 (class 2615 OID 58656)
+-- Name: investigacion; Type: SCHEMA; Schema: -; Owner: postgres
+--
 
--- Tabla: universidad
-CREATE TABLE IF NOT EXISTS universidad (
-    id INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    tipo VARCHAR(45) NOT NULL,
-    ciudad VARCHAR(45) NOT NULL,
-    PRIMARY KEY (id)
-);
+CREATE SCHEMA investigacion;
 
--- Tabla: linea_investigacion
-CREATE TABLE IF NOT EXISTS linea_investigacion (
-    id SERIAL,
-    nombre VARCHAR(45) NOT NULL,
-    descripcion VARCHAR(256) NOT NULL,
-    PRIMARY KEY (id)
-);
 
--- Tabla: docente
-CREATE TABLE IF NOT EXISTS docente (
-    cedula INT NOT NULL,
-    nombres VARCHAR(60) NOT NULL,
-    apellidos VARCHAR(60) NOT NULL,
-    genero VARCHAR(12) NOT NULL,
-    cargo VARCHAR(30) NOT NULL,
-    fecha_nacimiento DATE NOT NULL,
-    correo VARCHAR(70) NOT NULL,
-    telefono VARCHAR(20) NOT NULL,
-    url_cvlac VARCHAR(128) NOT NULL,
-    fecha_actualizacion DATE NOT NULL,
-    escalafon VARCHAR(45) NOT NULL,
-    perfil TEXT NOT NULL,
-    cat_minciencia VARCHAR(45),
-    conv_minciencia VARCHAR(45) NOT NULL,
-    nacionalidaad VARCHAR(45) NOT NULL,
-    linea_investigacion_principal INT,
-    PRIMARY KEY (cedula),
-    FOREIGN KEY (linea_investigacion_principal) REFERENCES linea_investigacion(id)
-);
+ALTER SCHEMA investigacion OWNER TO postgres;
 
--- Tabla: grupo_investigacion
-CREATE TABLE IF NOT EXISTS grupo_investigacion (
-    id INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    url_gruplac VARCHAR(128),
-    categoria VARCHAR(10),
-    convocatoria VARCHAR(10),
-    fecha_fundacion DATE NOT NULL,
-    universidsad INT,
-    interno SMALLINT NOT NULL,
-    ambito VARCHAR(45) NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (universidsad) REFERENCES universidad(id)
-);
+SET default_tablespace = '';
 
--- Tabla: semillero
-CREATE TABLE IF NOT EXISTS semillero (
-    id INT NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    fecha_fundacion DATE NOT NULL,
-    grupo_investigacion INT NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (grupo_investigacion) REFERENCES grupo_investigacion(id)
-);
+SET default_table_access_method = heap;
 
--- Tabla: participa_semillero
-CREATE TABLE IF NOT EXISTS participa_semillero (
-    docente INT NOT NULL,
-    semillero INT NOT NULL,
-    rol VARCHAR(15) NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE,
-    PRIMARY KEY (docente, semillero),
-    FOREIGN KEY (docente) REFERENCES docente(cedula),
-    FOREIGN KEY (semillero) REFERENCES semillero(id)
-);
+--
+-- TOC entry 234 (class 1259 OID 58811)
+-- Name: aa_linea; Type: TABLE; Schema: public; Owner: postgres
+--
 
--- Tabla: participa_grupo
-CREATE TABLE IF NOT EXISTS participa_grupo (
-    docente_cedula INT NOT NULL,
-    grupo_investigacion_id INT NOT NULL,
-    rol VARCHAR(15) NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE,
-    PRIMARY KEY (docente_cedula, grupo_investigacion_id),
-    FOREIGN KEY (docente_cedula) REFERENCES docente(cedula),
-    FOREIGN KEY (grupo_investigacion_id) REFERENCES grupo_investigacion(id)
-);
-
--- Tabla: semillero_linea
-CREATE TABLE IF NOT EXISTS semillero_linea (
-    semillero INT NOT NULL,
-    linea_investigacion INT NOT NULL,
-    PRIMARY KEY (semillero, linea_investigacion),
-    FOREIGN KEY (semillero) REFERENCES semillero(id),
-    FOREIGN KEY (linea_investigacion) REFERENCES linea_investigacion(id)
-);
-
--- Tabla: grupo_linea
-CREATE TABLE IF NOT EXISTS grupo_linea (
-    grupo_investigacion INT NOT NULL,
-    linea_investigacion INT NOT NULL,
-    PRIMARY KEY (grupo_investigacion, linea_investigacion),
-    FOREIGN KEY (grupo_investigacion) REFERENCES grupo_investigacion(id),
-    FOREIGN KEY (linea_investigacion) REFERENCES linea_investigacion(id)
-);
-
--- Tabla: ac_linea
-CREATE TABLE IF NOT EXISTS ac_linea (
-    linea_investigacion INT NOT NULL,
-    area_conocimiento INT NOT NULL,
-    PRIMARY KEY (linea_investigacion, area_conocimiento),
-    FOREIGN KEY (linea_investigacion) REFERENCES linea_investigacion(id),
-    FOREIGN KEY (area_conocimiento) REFERENCES area_conocimiento(id)
-);
-
--- Tabla: ods_linea
-CREATE TABLE IF NOT EXISTS ods_linea (
-    linea_investigacion INT NOT NULL,
-    ods INT NOT NULL,
-    PRIMARY KEY (linea_investigacion, ods),
-    FOREIGN KEY (linea_investigacion) REFERENCES linea_investigacion(id),
-    FOREIGN KEY (ods) REFERENCES objetivo_desarrollo_sostenible(id)
-);
-
--- Tabla: aa_linea
-CREATE TABLE IF NOT EXISTS aa_linea (
-    area_aplicacion INT NOT NULL,
-    linea_investigacion INT NOT NULL,
-    PRIMARY KEY (area_aplicacion, linea_investigacion),
-    FOREIGN KEY (area_aplicacion) REFERENCES area_aplicacion(id),
-    FOREIGN KEY (linea_investigacion) REFERENCES linea_investigacion(id)
+CREATE TABLE public.aa_linea (
+    area_aplicacion integer NOT NULL,
+    linea_investigacion integer NOT NULL,
+    activo boolean DEFAULT true
 );
 
 
--- =============================================
--- MÓDULO DE GESTIÓN DE USUARIOS
--- =============================================
+ALTER TABLE public.aa_linea OWNER TO postgres;
 
--- Tabla de roles
-CREATE TABLE IF NOT EXISTS rol (
-    id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT,
-    activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+--
+-- TOC entry 232 (class 1259 OID 58781)
+-- Name: ac_linea; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.ac_linea (
+    linea_investigacion integer NOT NULL,
+    area_conocimiento integer NOT NULL,
+    activo boolean DEFAULT true
 );
 
--- Tabla de usuarios
-CREATE TABLE IF NOT EXISTS usuario (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    nombre_completo VARCHAR(200),
-    activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+ALTER TABLE public.ac_linea OWNER TO postgres;
+
+--
+-- TOC entry 220 (class 1259 OID 58667)
+-- Name: area_aplicacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.area_aplicacion (
+    id integer NOT NULL,
+    nombre character varying(60) NOT NULL,
+    activo boolean DEFAULT true
 );
 
--- Tabla de relación usuario-rol
-CREATE TABLE IF NOT EXISTS rol_usuario (
-    usuario_id INT NOT NULL,
-    rol_id INT NOT NULL,
-    PRIMARY KEY (usuario_id, rol_id),
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
-    FOREIGN KEY (rol_id) REFERENCES rol(id) ON DELETE CASCADE
+
+ALTER TABLE public.area_aplicacion OWNER TO postgres;
+
+--
+-- TOC entry 240 (class 1259 OID 67062)
+-- Name: area_aplicacion_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.area_aplicacion ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.area_aplicacion_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
 );
+
+
+--
+-- TOC entry 244 (class 1259 OID 67066)
+-- Name: area_conocimiento_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.area_conocimiento_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.area_conocimiento_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 218 (class 1259 OID 58657)
+-- Name: area_conocimiento; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.area_conocimiento (
+    id integer DEFAULT nextval('public.area_conocimiento_id_seq'::regclass) NOT NULL,
+    gran_area character varying(60) NOT NULL,
+    area character varying(60) NOT NULL,
+    disciplina character varying(60) NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.area_conocimiento OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1259 OID 58689)
+-- Name: docente; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.docente (
+    cedula integer NOT NULL,
+    nombres character varying(60) NOT NULL,
+    apellidos character varying(60) NOT NULL,
+    genero character varying(12) NOT NULL,
+    cargo character varying(30) NOT NULL,
+    fecha_nacimiento date NOT NULL,
+    correo character varying(70) NOT NULL,
+    telefono character varying(20) NOT NULL,
+    url_cvlac character varying(128) NOT NULL,
+    fecha_actualizacion date NOT NULL,
+    escalafon character varying(45) NOT NULL,
+    perfil text NOT NULL,
+    cat_minciencia character varying(45),
+    conv_minciencia character varying(45) NOT NULL,
+    nacionalidad character varying(45) NOT NULL,
+    linea_investigacion_principal integer,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.docente OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1259 OID 58701)
+-- Name: grupo_investigacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.grupo_investigacion (
+    id integer NOT NULL,
+    nombre character varying(60) NOT NULL,
+    url_gruplac character varying(128),
+    categoria character varying(10),
+    convocatoria character varying(10),
+    fecha_fundacion date NOT NULL,
+    universidad integer,
+    interno smallint NOT NULL,
+    ambito character varying(45) NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.grupo_investigacion OWNER TO postgres;
+
+--
+-- TOC entry 242 (class 1259 OID 67064)
+-- Name: grupo_investigacion_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.grupo_investigacion ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.grupo_investigacion_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 231 (class 1259 OID 58766)
+-- Name: grupo_linea; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.grupo_linea (
+    grupo_investigacion integer NOT NULL,
+    linea_investigacion integer NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.grupo_linea OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1259 OID 58683)
+-- Name: linea_investigacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.linea_investigacion (
+    id integer NOT NULL,
+    nombre character varying(45) NOT NULL,
+    descripcion character varying(256) NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.linea_investigacion OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 58682)
+-- Name: linea_investigacion_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.linea_investigacion_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.linea_investigacion_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5087 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: linea_investigacion_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.linea_investigacion_id_seq OWNED BY public.linea_investigacion.id;
+
+
+--
+-- TOC entry 219 (class 1259 OID 58662)
+-- Name: objetivo_desarrollo_sostenible; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.objetivo_desarrollo_sostenible (
+    id integer NOT NULL,
+    nombre character varying(60) NOT NULL,
+    categoria character varying(45) NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.objetivo_desarrollo_sostenible OWNER TO postgres;
+
+--
+-- TOC entry 233 (class 1259 OID 58796)
+-- Name: ods_linea; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.ods_linea (
+    linea_investigacion integer NOT NULL,
+    ods integer NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.ods_linea OWNER TO postgres;
+
+--
+-- TOC entry 229 (class 1259 OID 58736)
+-- Name: participa_grupo; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.participa_grupo (
+    docente_cedula integer NOT NULL,
+    grupo_investigacion_id integer NOT NULL,
+    rol character varying(15) NOT NULL,
+    fecha_inicio date NOT NULL,
+    fecha_fin date,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.participa_grupo OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1259 OID 58721)
+-- Name: participa_semillero; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.participa_semillero (
+    docente integer NOT NULL,
+    semillero integer NOT NULL,
+    rol character varying(15) NOT NULL,
+    fecha_inicio date NOT NULL,
+    fecha_fin date,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.participa_semillero OWNER TO postgres;
+
+--
+-- TOC entry 236 (class 1259 OID 58827)
+-- Name: rol; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rol (
+    id integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    descripcion text,
+    activo boolean DEFAULT true,
+    fecha_creacion timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.rol OWNER TO postgres;
+
+--
+-- TOC entry 235 (class 1259 OID 58826)
+-- Name: rol_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.rol_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.rol_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5088 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: rol_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.rol_id_seq OWNED BY public.rol.id;
+
+
+--
+-- TOC entry 239 (class 1259 OID 58855)
+-- Name: rol_usuario; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rol_usuario (
+    usuario_id integer NOT NULL,
+    rol_id integer NOT NULL
+);
+
+
+ALTER TABLE public.rol_usuario OWNER TO postgres;
+
+--
+-- TOC entry 227 (class 1259 OID 58711)
+-- Name: semillero; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.semillero (
+    id integer NOT NULL,
+    nombre character varying(60) NOT NULL,
+    fecha_fundacion date NOT NULL,
+    grupo_investigacion integer NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.semillero OWNER TO postgres;
+
+--
+-- TOC entry 243 (class 1259 OID 67065)
+-- Name: semillero_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.semillero ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.semillero_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 230 (class 1259 OID 58751)
+-- Name: semillero_linea; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.semillero_linea (
+    semillero integer NOT NULL,
+    linea_investigacion integer NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.semillero_linea OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1259 OID 58672)
+-- Name: termino_clave; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.termino_clave (
+    termino character varying(30) NOT NULL,
+    termino_ingles character varying(30),
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.termino_clave OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 58677)
+-- Name: universidad; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.universidad (
+    id integer NOT NULL,
+    nombre character varying(60) NOT NULL,
+    tipo character varying(45) NOT NULL,
+    ciudad character varying(45) NOT NULL,
+    activo boolean DEFAULT true
+);
+
+
+ALTER TABLE public.universidad OWNER TO postgres;
+
+--
+-- TOC entry 241 (class 1259 OID 67063)
+-- Name: universidad_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.universidad ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.universidad_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 238 (class 1259 OID 58840)
+-- Name: usuario; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.usuario (
+    id integer NOT NULL,
+    username character varying(100) NOT NULL,
+    password character varying(255) NOT NULL,
+    email character varying(150) NOT NULL,
+    nombre_completo character varying(200),
+    activo boolean DEFAULT true,
+    fecha_creacion timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.usuario OWNER TO postgres;
+
+--
+-- TOC entry 237 (class 1259 OID 58839)
+-- Name: usuario_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.usuario_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.usuario_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5089 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: usuario_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.usuario_id_seq OWNED BY public.usuario.id;
+
+
+--
+-- TOC entry 4828 (class 2604 OID 58686)
+-- Name: linea_investigacion id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.linea_investigacion ALTER COLUMN id SET DEFAULT nextval('public.linea_investigacion_id_seq'::regclass);
+
+
+--
+-- TOC entry 4840 (class 2604 OID 58830)
+-- Name: rol id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rol ALTER COLUMN id SET DEFAULT nextval('public.rol_id_seq'::regclass);
+
+
+--
+-- TOC entry 4843 (class 2604 OID 58843)
+-- Name: usuario id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario ALTER COLUMN id SET DEFAULT nextval('public.usuario_id_seq'::regclass);
+
+
+--
+-- TOC entry 4878 (class 2606 OID 58815)
+-- Name: aa_linea aa_linea_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.aa_linea
+    ADD CONSTRAINT aa_linea_pkey PRIMARY KEY (area_aplicacion, linea_investigacion);
+
+
+--
+-- TOC entry 4874 (class 2606 OID 58785)
+-- Name: ac_linea ac_linea_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ac_linea
+    ADD CONSTRAINT ac_linea_pkey PRIMARY KEY (linea_investigacion, area_conocimiento);
+
+
+--
+-- TOC entry 4852 (class 2606 OID 58671)
+-- Name: area_aplicacion area_aplicacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.area_aplicacion
+    ADD CONSTRAINT area_aplicacion_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4848 (class 2606 OID 58661)
+-- Name: area_conocimiento area_conocimiento_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.area_conocimiento
+    ADD CONSTRAINT area_conocimiento_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4860 (class 2606 OID 58695)
+-- Name: docente docente_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.docente
+    ADD CONSTRAINT docente_pkey PRIMARY KEY (cedula);
+
+
+--
+-- TOC entry 4862 (class 2606 OID 58705)
+-- Name: grupo_investigacion grupo_investigacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grupo_investigacion
+    ADD CONSTRAINT grupo_investigacion_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4872 (class 2606 OID 58770)
+-- Name: grupo_linea grupo_linea_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grupo_linea
+    ADD CONSTRAINT grupo_linea_pkey PRIMARY KEY (grupo_investigacion, linea_investigacion);
+
+
+--
+-- TOC entry 4858 (class 2606 OID 58688)
+-- Name: linea_investigacion linea_investigacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.linea_investigacion
+    ADD CONSTRAINT linea_investigacion_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4850 (class 2606 OID 58666)
+-- Name: objetivo_desarrollo_sostenible objetivo_desarrollo_sostenible_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.objetivo_desarrollo_sostenible
+    ADD CONSTRAINT objetivo_desarrollo_sostenible_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4876 (class 2606 OID 58800)
+-- Name: ods_linea ods_linea_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ods_linea
+    ADD CONSTRAINT ods_linea_pkey PRIMARY KEY (linea_investigacion, ods);
+
+
+--
+-- TOC entry 4868 (class 2606 OID 58740)
+-- Name: participa_grupo participa_grupo_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.participa_grupo
+    ADD CONSTRAINT participa_grupo_pkey PRIMARY KEY (docente_cedula, grupo_investigacion_id);
+
+
+--
+-- TOC entry 4866 (class 2606 OID 58725)
+-- Name: participa_semillero participa_semillero_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.participa_semillero
+    ADD CONSTRAINT participa_semillero_pkey PRIMARY KEY (docente, semillero);
+
+
+--
+-- TOC entry 4880 (class 2606 OID 58838)
+-- Name: rol rol_nombre_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rol
+    ADD CONSTRAINT rol_nombre_key UNIQUE (nombre);
+
+
+--
+-- TOC entry 4882 (class 2606 OID 58836)
+-- Name: rol rol_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rol
+    ADD CONSTRAINT rol_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4890 (class 2606 OID 58859)
+-- Name: rol_usuario rol_usuario_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rol_usuario
+    ADD CONSTRAINT rol_usuario_pkey PRIMARY KEY (usuario_id, rol_id);
+
+
+--
+-- TOC entry 4870 (class 2606 OID 58755)
+-- Name: semillero_linea semillero_linea_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.semillero_linea
+    ADD CONSTRAINT semillero_linea_pkey PRIMARY KEY (semillero, linea_investigacion);
+
+
+--
+-- TOC entry 4864 (class 2606 OID 58715)
+-- Name: semillero semillero_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.semillero
+    ADD CONSTRAINT semillero_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4854 (class 2606 OID 58676)
+-- Name: termino_clave termino_clave_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.termino_clave
+    ADD CONSTRAINT termino_clave_pkey PRIMARY KEY (termino);
+
+
+--
+-- TOC entry 4856 (class 2606 OID 58681)
+-- Name: universidad universidad_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.universidad
+    ADD CONSTRAINT universidad_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4884 (class 2606 OID 58854)
+-- Name: usuario usuario_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_email_key UNIQUE (email);
+
+
+--
+-- TOC entry 4886 (class 2606 OID 58850)
+-- Name: usuario usuario_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4888 (class 2606 OID 58852)
+-- Name: usuario usuario_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_username_key UNIQUE (username);
+
+
+--
+-- TOC entry 4906 (class 2606 OID 58816)
+-- Name: aa_linea aa_linea_area_aplicacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.aa_linea
+    ADD CONSTRAINT aa_linea_area_aplicacion_fkey FOREIGN KEY (area_aplicacion) REFERENCES public.area_aplicacion(id);
+
+
+--
+-- TOC entry 4907 (class 2606 OID 58821)
+-- Name: aa_linea aa_linea_linea_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.aa_linea
+    ADD CONSTRAINT aa_linea_linea_investigacion_fkey FOREIGN KEY (linea_investigacion) REFERENCES public.linea_investigacion(id);
+
+
+--
+-- TOC entry 4902 (class 2606 OID 58791)
+-- Name: ac_linea ac_linea_area_conocimiento_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ac_linea
+    ADD CONSTRAINT ac_linea_area_conocimiento_fkey FOREIGN KEY (area_conocimiento) REFERENCES public.area_conocimiento(id);
+
+
+--
+-- TOC entry 4903 (class 2606 OID 58786)
+-- Name: ac_linea ac_linea_linea_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ac_linea
+    ADD CONSTRAINT ac_linea_linea_investigacion_fkey FOREIGN KEY (linea_investigacion) REFERENCES public.linea_investigacion(id);
+
+
+--
+-- TOC entry 4891 (class 2606 OID 58696)
+-- Name: docente docente_linea_investigacion_principal_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.docente
+    ADD CONSTRAINT docente_linea_investigacion_principal_fkey FOREIGN KEY (linea_investigacion_principal) REFERENCES public.linea_investigacion(id);
+
+
+--
+-- TOC entry 4892 (class 2606 OID 58706)
+-- Name: grupo_investigacion grupo_investigacion_universidsad_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grupo_investigacion
+    ADD CONSTRAINT grupo_investigacion_universidsad_fkey FOREIGN KEY (universidad) REFERENCES public.universidad(id);
+
+
+--
+-- TOC entry 4900 (class 2606 OID 58771)
+-- Name: grupo_linea grupo_linea_grupo_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grupo_linea
+    ADD CONSTRAINT grupo_linea_grupo_investigacion_fkey FOREIGN KEY (grupo_investigacion) REFERENCES public.grupo_investigacion(id);
+
+
+--
+-- TOC entry 4901 (class 2606 OID 58776)
+-- Name: grupo_linea grupo_linea_linea_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.grupo_linea
+    ADD CONSTRAINT grupo_linea_linea_investigacion_fkey FOREIGN KEY (linea_investigacion) REFERENCES public.linea_investigacion(id);
+
+
+--
+-- TOC entry 4904 (class 2606 OID 58801)
+-- Name: ods_linea ods_linea_linea_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ods_linea
+    ADD CONSTRAINT ods_linea_linea_investigacion_fkey FOREIGN KEY (linea_investigacion) REFERENCES public.linea_investigacion(id);
+
+
+--
+-- TOC entry 4905 (class 2606 OID 58806)
+-- Name: ods_linea ods_linea_ods_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ods_linea
+    ADD CONSTRAINT ods_linea_ods_fkey FOREIGN KEY (ods) REFERENCES public.objetivo_desarrollo_sostenible(id);
+
+
+--
+-- TOC entry 4896 (class 2606 OID 58741)
+-- Name: participa_grupo participa_grupo_docente_cedula_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.participa_grupo
+    ADD CONSTRAINT participa_grupo_docente_cedula_fkey FOREIGN KEY (docente_cedula) REFERENCES public.docente(cedula);
+
+
+--
+-- TOC entry 4897 (class 2606 OID 58746)
+-- Name: participa_grupo participa_grupo_grupo_investigacion_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.participa_grupo
+    ADD CONSTRAINT participa_grupo_grupo_investigacion_id_fkey FOREIGN KEY (grupo_investigacion_id) REFERENCES public.grupo_investigacion(id);
+
+
+--
+-- TOC entry 4894 (class 2606 OID 58726)
+-- Name: participa_semillero participa_semillero_docente_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.participa_semillero
+    ADD CONSTRAINT participa_semillero_docente_fkey FOREIGN KEY (docente) REFERENCES public.docente(cedula);
+
+
+--
+-- TOC entry 4895 (class 2606 OID 58731)
+-- Name: participa_semillero participa_semillero_semillero_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.participa_semillero
+    ADD CONSTRAINT participa_semillero_semillero_fkey FOREIGN KEY (semillero) REFERENCES public.semillero(id);
+
+
+--
+-- TOC entry 4908 (class 2606 OID 58865)
+-- Name: rol_usuario rol_usuario_rol_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rol_usuario
+    ADD CONSTRAINT rol_usuario_rol_id_fkey FOREIGN KEY (rol_id) REFERENCES public.rol(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 4909 (class 2606 OID 58860)
+-- Name: rol_usuario rol_usuario_usuario_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rol_usuario
+    ADD CONSTRAINT rol_usuario_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuario(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 4893 (class 2606 OID 58716)
+-- Name: semillero semillero_grupo_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.semillero
+    ADD CONSTRAINT semillero_grupo_investigacion_fkey FOREIGN KEY (grupo_investigacion) REFERENCES public.grupo_investigacion(id);
+
+
+--
+-- TOC entry 4898 (class 2606 OID 58761)
+-- Name: semillero_linea semillero_linea_linea_investigacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.semillero_linea
+    ADD CONSTRAINT semillero_linea_linea_investigacion_fkey FOREIGN KEY (linea_investigacion) REFERENCES public.linea_investigacion(id);
+
+
+--
+-- TOC entry 4899 (class 2606 OID 58756)
+-- Name: semillero_linea semillero_linea_semillero_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.semillero_linea
+    ADD CONSTRAINT semillero_linea_semillero_fkey FOREIGN KEY (semillero) REFERENCES public.semillero(id);
+
+
+-- Completed on 2026-05-13 14:30:26
+
+--
+-- PostgreSQL database dump complete
+--
+
+
