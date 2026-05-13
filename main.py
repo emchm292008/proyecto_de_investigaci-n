@@ -51,6 +51,25 @@ async def debug_db_url():
     }
 
 # ------------------------------------------------------------
+# ENDPOINT DE PRUEBA DE INSERT DIRECTO CON ASYNCPG (sin repositorio)
+# ------------------------------------------------------------
+@app.post("/test-insert-directo")
+async def test_insert_directo():
+    from config import settings
+    import asyncpg
+    url = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}?ssl=require"
+    try:
+        conn = await asyncpg.connect(url)
+        await conn.execute(
+            "INSERT INTO public.usuario (username, password, email) VALUES ($1, $2, $3)",
+            "test_api_directo", "clave123", "test@api.com"
+        )
+        await conn.close()
+        return {"ok": True, "message": "INSERT exitoso"}
+    except Exception as e:
+        return {"error": str(e)}
+
+# ------------------------------------------------------------
 # ENDPOINT DE VERIFICACIÓN DE CONTRASEÑA (directo en main)
 # ------------------------------------------------------------
 @app.post("/api/usuario/verificar-contrasena")
