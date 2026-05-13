@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from controllers import entidades_controller, investigacion_controller
+from controllers.auth_controller import router as auth_router
 
 app = FastAPI(
     title="API Investigación - PostgreSQL",
@@ -22,6 +23,7 @@ app.add_middleware(
 # Registrar ambos controladores
 app.include_router(entidades_controller)          # /api/{tabla}
 app.include_router(investigacion_controller)      # /api/investigacion/{tabla}
+app.include_router(auth_router, prefix="/api")  # ← NUEVO
 
 @app.get("/", tags=["Diagnóstico"])
 async def root():
