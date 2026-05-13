@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from controllers import entidades_controller, investigacion_controller
-from controllers.auth_controller import router as auth_router
+from servicios.fabrica_repositorios import crear_servicio_crud
+from servicios.utilidades.encriptacion_bcrypt import verificar
 
 app = FastAPI(
     title="API Investigación - PostgreSQL",
@@ -20,10 +21,48 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrar ambos controladores
+# ------------------------------------------------------------
+# ENDPOINT DE VERIFICACIÓN DE CONTRASEÑA (directo en main)
+# ------------------------------------------------------------
+@app.post("/api/usuario/verificar-contrasena")
+async def verificar_contrasena(
+    campo_usuario: str = Query(...),
+    campo_contrasena: str = Query(...),
+    valor_usuario: str = Query(...),
+    valor_contrasena: str = Query(...),
+    esquema: str = Query("public")
+):
+    try:
+        servicio = crear_servicio_crud()
+        repositorio = servicio.repositorio_lectura
+
+        hash_almacenado = await repositorio.obtener_hash_contrasena(
+            nombre_tabla="usuario",
+            campo_usuario=campo_usuario,
+            campo_contrasena=campo_contrasena,
+            valor_usuario=valor_usuario,
+            esquema=esquema
+        )
+
+        if not hash_almacenado:
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+        if verificar(valor_contrasena, hash_almacenado):
+            return {"estado": 200, "mensaje": "Autenticación exitosa"}
+        else:
+            raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ------------------------------------------------------------
+# REGISTRO DE CONTROLADORES (Routers)
+# ------------------------------------------------------------
 app.include_router(entidades_controller)          # /api/{tabla}
 app.include_router(investigacion_controller)      # /api/investigacion/{tabla}
-app.include_router(auth_router, prefix="/api")  # ← NUEVO
+
+# Nota: Ya NO necesitamos auth_controller, el endpoint quedó definido arriba
 
 @app.get("/", tags=["Diagnóstico"])
 async def root():
