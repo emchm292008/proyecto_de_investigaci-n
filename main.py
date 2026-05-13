@@ -79,7 +79,7 @@ app.include_router(investigacion_controller)      # /api/investigacion/{tabla}
 @app.get("/", tags=["Diagnóstico"])
 async def root():
     return {
-        "mensaje": "API Investigación funcionando",
+        "mensaje": "API Investigación funcionando - v2 (con ping)",  # <-- CAMBIADO AQUÍ
         "version": "1.0.0",
         "base_datos": settings.DB_NAME,
         "esquema": settings.DB_SCHEMA,
