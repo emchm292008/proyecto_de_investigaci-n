@@ -1,0 +1,7 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+    "files.associations": {
+        "*.env": "dotenv",
+        "*.env.*": "dotenv"
+    }
+}

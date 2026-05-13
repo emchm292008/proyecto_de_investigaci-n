@@ -1,0 +1,1 @@
+"""Paquete de conexión — Proveedor de conexión a base de datos."""

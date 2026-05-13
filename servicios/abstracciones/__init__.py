@@ -1,0 +1,1 @@
+"""Paquete de abstracciones — Interfaces para servicios."""

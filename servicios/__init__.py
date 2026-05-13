@@ -1,0 +1,1 @@
+"""Paquete de servicios — Lógica de negocio y fábrica de repositorios."""
