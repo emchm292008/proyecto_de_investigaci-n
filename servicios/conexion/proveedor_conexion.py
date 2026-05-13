@@ -15,10 +15,10 @@ class ProveedorConexion:
         return "postgresql"
 
     def obtener_cadena_conexion(self) -> str:
-        """Cadena de conexión async para PostgreSQL."""
+        """Cadena de conexión async para PostgreSQL con SSL obligatorio."""
         return (
             f"postgresql+asyncpg://"
             f"{self._settings.DB_USER}:{self._settings.DB_PASSWORD}"
             f"@{self._settings.DB_HOST}:{self._settings.DB_PORT}"
-            f"/{self._settings.DB_NAME}"
+            f"/{self._settings.DB_NAME}?sslmode=require"
         )
