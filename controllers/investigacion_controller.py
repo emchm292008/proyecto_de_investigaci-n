@@ -3,7 +3,7 @@ Controlador específico para la base de datos de investigación
 Proporciona endpoints optimizados para las 19 tablas del sistema
 """
 from typing import Optional, Any
-from fastapi import APIRouter, HTTPException, Query, Depends, Body
+from fastapi import APIRouter, HTTPException, Query, Body
 from servicios.fabrica_repositorios import crear_servicio_crud
 
 router = APIRouter(prefix="/api/investigacion", tags=["Investigación"])
@@ -36,9 +36,10 @@ def validar_tabla(tabla: str):
 # =========================================================================
 @router.get("/{tabla}")
 async def listar_registros(
-    tabla: str = Depends(validar_tabla),
+    tabla: str,
     limite: Optional[int] = Query(None, description="Límite de registros")
 ):
+    validar_tabla(tabla)
     try:
         servicio = crear_servicio_crud()
         filas = await servicio.listar(tabla, ESQUEMA_DEFAULT, limite)
@@ -56,10 +57,11 @@ async def listar_registros(
 # =========================================================================
 @router.get("/{tabla}/{clave}/{valor}")
 async def obtener_por_clave(
-    tabla: str = Depends(validar_tabla),
-    clave: str = None,
-    valor: str = None
+    tabla: str,
+    clave: str,
+    valor: str
 ):
+    validar_tabla(tabla)
     try:
         servicio = crear_servicio_crud()
         filas = await servicio.obtener_por_clave(tabla, clave, valor, ESQUEMA_DEFAULT)
@@ -82,9 +84,10 @@ async def obtener_por_clave(
 # =========================================================================
 @router.post("/{tabla}")
 async def crear_registro(
-    tabla: str = Depends(validar_tabla),
+    tabla: str,
     datos: dict[str, Any] = Body(None)
 ):
+    validar_tabla(tabla)
     try:
         if not datos:
             raise HTTPException(status_code=400, detail="Datos requeridos")
